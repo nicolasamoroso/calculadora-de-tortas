@@ -34,7 +34,8 @@ import { CakeProductTable } from "@/components/cakes/table/cake-product-table"
 export type CakeProduct = {
   id: string
   name: string
-  weight: number
+  weight: number | null
+  unit: number | null
   cost: number
 }
 
@@ -87,8 +88,6 @@ const AddCake = () => {
       return
     }
 
-    console.log(img)
-
     const cake = {
       id: Math.random().toString(36).slice(2, 9),
       name,
@@ -109,84 +108,85 @@ const AddCake = () => {
   }
 
   return (
-    <Dialog
-      onOpenChange={(open) => {
-        if (!open) setData([])
-        return setOpen((prev) => !prev)
-      }}
-      open={open}
-    >
-      <DialogTrigger asChild>
-        <Button variant="default" className="w-[150px]">
-          Agregar Torta
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Agregar Torta</DialogTitle>
-          <DialogDescription>Hace clic en guardar cuando termines.</DialogDescription>
-        </DialogHeader>
-
-        <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Debes ingresar un producto</AlertDialogTitle>
-              <AlertDialogDescription>
-                Para poder crear una torta debes ingresar al menos un producto en la torta
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction>Ok</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <form onSubmit={saveCake}>
-          <div className="grid gap-2 pt-4 pb-8">
-            <div>
-              <Label htmlFor="img">Imagen</Label>
-              <Input
-                id="img"
-                name="img"
-                type="file"
-                className="pt-1.5"
-                onChange={base64}
-              />
-            </div>
-            <div>
-              <Label htmlFor="name">
-                Nombre <span className="text-red-600">*</span>
-              </Label>
-              <Input id="name" name="name" placeholder="Torta de chocolate" required />
-            </div>
-            <div>
-              <Label htmlFor="radio">
-                Radio (cm) <span className="text-red-600">*</span>
-              </Label>
-              <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+    <>
+      <Dialog
+        onOpenChange={(open) => {
+          if (!open) setData([])
+          return setOpen((prev) => !prev)
+        }}
+        open={open}
+      >
+        <DialogTrigger asChild>
+          <Button variant="default" className="w-[150px]">
+            Agregar Torta
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Agregar Torta</DialogTitle>
+            <DialogDescription>Hace clic en guardar cuando termines.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={saveCake}>
+            <div className="grid gap-2 pt-4 pb-8">
+              <div>
+                <Label htmlFor="img">Imagen</Label>
                 <Input
-                  id="radio"
-                  name="radio"
-                  placeholder="15"
-                  type="number"
-                  className="text-black"
-                  required
+                  id="img"
+                  name="img"
+                  type="file"
+                  className="pt-1.5"
+                  onChange={base64}
                 />
-                cm
-              </span>
+              </div>
+              <div>
+                <Label htmlFor="name">
+                  Nombre <span className="text-red-600">*</span>
+                </Label>
+                <Input id="name" name="name" placeholder="Torta de chocolate" required />
+              </div>
+              <div>
+                <Label htmlFor="radio">
+                  Radio (cm) <span className="text-red-600">*</span>
+                </Label>
+                <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                  <Input
+                    id="radio"
+                    name="radio"
+                    placeholder="15"
+                    type="number"
+                    className="text-black"
+                    required
+                  />
+                  cm
+                </span>
+              </div>
+              <div className="py-2 flex flex-col gap-2">
+                <AddProductToCake setData={setData} />
+                {data && data.length > 0 ? (
+                  <CakeProductTable columns={cakeColumns} data={data} />
+                ) : undefined}
+              </div>
             </div>
-            <div className="py-2 flex flex-col gap-2">
-              <AddProductToCake setData={setData} />
-              {data && data.length > 0 ? (
-                <CakeProductTable columns={cakeColumns} data={data} />
-              ) : undefined}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Save changes</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Debes ingresar un producto</AlertDialogTitle>
+            <AlertDialogDescription>
+              Para poder crear una torta debes ingresar al menos un producto en la torta
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction>Ok</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 

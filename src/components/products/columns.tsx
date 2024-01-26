@@ -130,7 +130,7 @@ export const columns: ColumnDef<Product>[] = [
         <Dialog onOpenChange={setOpen} open={open}>
           <TooltipProvider>
             <Tooltip>
-              <TooltipTrigger>
+              <TooltipTrigger asChild>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-8 h-8 p-0">
                     <Pencil className="h-3 w-3" />

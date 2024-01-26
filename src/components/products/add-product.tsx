@@ -74,7 +74,14 @@ const AddProduct = () => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Agregar Producto</DialogTitle>
-          <DialogDescription>Hace clic en guardar cuando termines.</DialogDescription>
+          <DialogDescription>
+            Hace clic en guardar cuando termines.
+            <span className="text-xs">
+              <br />(<span className="text-red-500">*</span>) Obligatorio
+              <br />
+              <span>(*) Obligatorio al menos uno de los dos</span>
+            </span>
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={saveProduct}>
           <div className="grid gap-3 pt-4 pb-8">
@@ -111,7 +118,7 @@ const AddProduct = () => {
                   type="number"
                   className="text-black"
                 />
-                g/ml
+                u
               </span>
             </div>
             <div>

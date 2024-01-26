@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
@@ -32,11 +32,20 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
   },
   {
     accessorKey: "weight",
-    header: "Peso",
+    header: "Peso o Voluemn",
     cell: ({ row }) => {
       const weight = row.getValue("weight") as string
-
+      if (!weight) return "-"
       return <>{weight} g/ml</>
+    },
+  },
+  {
+    accessorKey: "unit",
+    header: "Unidad",
+    cell: ({ row }) => {
+      const unit = row.getValue("unit") as string
+      if (!unit) return "-"
+      return <>{unit}</>
     },
   },
   {
@@ -46,16 +55,21 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
 
       const [name, setName] = useState(product.name)
       const [weight, setWeight] = useState<string>(String(product.weight))
+      const [unit, setUnit] = useState<string>(String(product.unit))
       const [open, setOpen] = useState(false)
       const [, setValue] = useStorage<CakeProduct[]>("localStorage", `cake-products`, [])
 
       const saveProduct = () => {
-        if (!name || !weight || !Number(weight)) {
+        if (!name || (!weight && !unit)) {
           console.log("invalid form")
           return
         }
 
-        if (name === product.name && weight === String(product.weight)) {
+        if (
+          name === product.name &&
+          weight === String(product.weight) &&
+          unit === String(product.unit)
+        ) {
           console.log("no changes")
           setOpen(false)
           return
@@ -63,18 +77,24 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
 
         setName(name)
         setWeight(weight)
+        setUnit(unit)
 
         setValue((prev) => {
           if (!prev) return []
 
-          const cost = (Number(weight) * product.cost) / product.weight
+          const cost = product.weight
+            ? (Number(weight) * product.cost) / product.weight
+            : product.unit
+              ? (Number(unit) * product.cost) / product.unit
+              : 0
 
           return prev.map((product) => {
             if (product.id === row.original.id) {
               return {
                 ...product,
                 name,
-                weight: Number(weight),
+                weight: weight ? Number(weight) : null,
+                unit: unit ? Number(unit) : null,
                 cost,
               }
             }
@@ -94,30 +114,71 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Agregar Producto</DialogTitle>
+              <DialogTitle>Editar Producto</DialogTitle>
               <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
+                Hace clic en guardar cuando termines.
+                <span className="text-xs">
+                  <br />(<span className="text-red-500">*</span>) Obligatorio
+                  <br />
+                  <span>(*) Obligatorio al menos uno de los dos</span>
+                </span>
               </DialogDescription>
             </DialogHeader>
             <form>
               <div className="grid gap-4 py-4">
                 <div className="flex flex-col gap-1">
-                  <Label htmlFor="name">Nombre</Label>
+                  <Label htmlFor="select">
+                    Selecciona un producto <span className="text-red-500">*</span>
+                  </Label>
                   <ProductSelect setSelect={setName} initialValue={name} />
                 </div>
-                <div className="grid gap-1">
-                  <Label htmlFor="weight">Peso (g) o Volumen (ml)</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Label
+                    htmlFor="weight"
+                    className={
+                      !product?.weight
+                        ? "text-muted-foreground font-normal"
+                        : "text-black"
+                    }
+                  >
+                    Peso (g) / Volumen (ml){" "}
+                    <span className="text-muted-foreground">*</span>
+                  </Label>
+                  <Label
+                    htmlFor="unit"
+                    className={
+                      !product?.unit ? "text-muted-foreground font-normal" : "text-black"
+                    }
+                  >
+                    Unidad <span className="text-muted-foreground">*</span>
+                  </Label>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
                     <Input
                       id="weight"
                       name="weight"
                       placeholder="1000"
+                      type="number"
                       value={weight}
                       onChange={(ev) => setWeight(ev.target.value)}
-                      type="number"
-                      className="text-black invalid:ring-destructive"
+                      className="text-black"
+                      disabled={!product?.weight}
                     />
                     g/ml
+                  </span>
+                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                    <Input
+                      id="unit"
+                      name="unit"
+                      placeholder="1"
+                      type="number"
+                      value={unit}
+                      onChange={(ev) => setUnit(ev.target.value)}
+                      className="text-black invalid:ring-destructive"
+                      disabled={!product?.unit}
+                    />
+                    u
                   </span>
                 </div>
               </div>
