@@ -17,16 +17,13 @@ import { CakeProduct } from "@/components/cakes/add-cake"
 import ProductSelect from "@/components/cakes/product-select"
 import { Product } from "@/components/products/columns"
 
-const AddProductToCake = ({
-  setData,
-}: {
-  setData: Dispatch<SetStateAction<CakeProduct[]>>
-}) => {
+const AddProductToCake = () => {
   const [select, setSelect] = useState("")
   const [open, setOpen] = useState(false)
   const weightRef = useRef<ElementRef<"input">>(null)
   const unitRef = useRef<ElementRef<"input">>(null)
   const [data] = useStorage<Product[]>("localStorage", "products", [])
+  const [, setValue] = useStorage<CakeProduct[]>("localStorage", "cake-products", [])
 
   const name = select
   const product = data?.find((product) => product.name === name)
@@ -59,7 +56,11 @@ const AddProductToCake = ({
       cost: cost,
     }
 
-    setData((prev) => [...prev, newProduct])
+    setValue((prev) => {
+      if (!prev) return []
+      return [...prev, newProduct]
+    })
+
     setSelect("")
     setOpen(false)
   }

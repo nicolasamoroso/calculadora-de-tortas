@@ -6,7 +6,6 @@ import { useStorage } from "@/hooks/use-storage"
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -52,24 +51,17 @@ const AddCake = () => {
   const cakeId = Math.random().toString(36).slice(2, 9)
   const [open, setOpen] = useState(false)
   const [openAlert, setOpenAlert] = useState(false)
-  const [data, setData] = useState<CakeProduct[]>([])
+  const [data, setData] = useStorage<CakeProduct[]>("localStorage", "cake-products", [])
   const [img, setImg] = useState<string | null>(null)
   const [, setCakes] = useStorage<Cake[]>("localStorage", `cakes`, [])
-
-  const initialCake: Cake = {
+  const [, setValue] = useStorage<Cake>("localStorage", `cake-${cakeId}-products`, {
     id: cakeId,
     name: "Default Cake",
     radio: 0,
     products: [],
     img: img,
     cost: 0,
-  }
-
-  const [, setValue] = useStorage<Cake>(
-    "localStorage",
-    `cake-${cakeId}-products`,
-    initialCake
-  )
+  })
 
   const base64 = (e: ChangeEvent<HTMLInputElement>) => {
     imageUpload({ e, setImg })
@@ -102,7 +94,7 @@ const AddCake = () => {
       if (!prev) return [cake]
       return [...prev, cake]
     })
-    setData([])
+    setData(() => [])
     setOpen(false)
     setImg(null)
   }
@@ -111,7 +103,7 @@ const AddCake = () => {
     <>
       <Dialog
         onOpenChange={(open) => {
-          if (!open) setData([])
+          if (!open) setData(() => [])
           return setOpen((prev) => !prev)
         }}
         open={open}
@@ -161,7 +153,7 @@ const AddCake = () => {
                 </span>
               </div>
               <div className="py-2 flex flex-col gap-2">
-                <AddProductToCake setData={setData} />
+                <AddProductToCake />
                 {data && data.length > 0 ? (
                   <CakeProductTable columns={cakeColumns} data={data} />
                 ) : undefined}

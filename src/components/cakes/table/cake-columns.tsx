@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
+import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -56,12 +57,42 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
       const [weight, setWeight] = useState<string>(String(product.weight))
       const [unit, setUnit] = useState<string>(String(product.unit))
       const [open, setOpen] = useState(false)
+      const [, setValue] = useStorage<CakeProduct[]>("localStorage", "cake-products", [])
 
       const saveProduct = () => {
         if (!name || (!weight && !unit)) {
           alert("Formulario Invalido")
           return
         }
+
+        if (!product) {
+          alert("No hay producto")
+          return
+        }
+
+        const cost = product.weight
+          ? (Number(weight) * product.cost) / product.weight
+          : product.unit
+            ? (Number(unit) * product.cost) / product.unit
+            : 0
+
+        const newProduct: CakeProduct = {
+          id: product.id,
+          name: name,
+          weight: weight ? Number(weight) : null,
+          unit: unit ? Number(unit) : null,
+          cost: cost,
+        }
+
+        setValue((prev) => {
+          if (!prev) return []
+          return prev.map((p) => {
+            if (p.id === product.id) {
+              return newProduct
+            }
+            return p
+          })
+        })
 
         setName(name)
         setWeight(weight)
