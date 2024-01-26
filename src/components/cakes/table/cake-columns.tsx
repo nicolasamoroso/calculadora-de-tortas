@@ -4,7 +4,6 @@ import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
-import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -45,7 +44,7 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
     cell: ({ row }) => {
       const unit = row.getValue("unit") as string
       if (!unit) return "-"
-      return <>{unit}</>
+      return <>{unit} u</>
     },
   },
   {
@@ -57,51 +56,16 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
       const [weight, setWeight] = useState<string>(String(product.weight))
       const [unit, setUnit] = useState<string>(String(product.unit))
       const [open, setOpen] = useState(false)
-      const [, setValue] = useStorage<CakeProduct[]>("localStorage", `cake-products`, [])
 
       const saveProduct = () => {
         if (!name || (!weight && !unit)) {
-          console.log("invalid form")
-          return
-        }
-
-        if (
-          name === product.name &&
-          weight === String(product.weight) &&
-          unit === String(product.unit)
-        ) {
-          console.log("no changes")
-          setOpen(false)
+          alert("Formulario Invalido")
           return
         }
 
         setName(name)
         setWeight(weight)
         setUnit(unit)
-
-        setValue((prev) => {
-          if (!prev) return []
-
-          const cost = product.weight
-            ? (Number(weight) * product.cost) / product.weight
-            : product.unit
-              ? (Number(unit) * product.cost) / product.unit
-              : 0
-
-          return prev.map((product) => {
-            if (product.id === row.original.id) {
-              return {
-                ...product,
-                name,
-                weight: weight ? Number(weight) : null,
-                unit: unit ? Number(unit) : null,
-                cost,
-              }
-            }
-            return product
-          })
-        })
-
         setOpen(false)
       }
 
@@ -141,7 +105,7 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
                         : "text-black"
                     }
                   >
-                    Peso (g) / Volumen (ml){" "}
+                    Peso (g) / Volumen (ml)
                     <span className="text-muted-foreground">*</span>
                   </Label>
                   <Label
@@ -183,7 +147,7 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
                 </div>
               </div>
               <DialogFooter>
-                <Button type="button" onClick={() => saveProduct}>
+                <Button type="button" onClick={saveProduct}>
                   Guardar cambios
                 </Button>
               </DialogFooter>
