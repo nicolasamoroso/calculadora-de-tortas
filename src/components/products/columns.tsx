@@ -27,7 +27,8 @@ import {
 export type Product = {
   id: string
   name: string
-  weight: number
+  weight: number | null
+  unit: number | null
   cost: number
 }
 
@@ -43,11 +44,20 @@ export const columns: ColumnDef<Product>[] = [
   },
   {
     accessorKey: "weight",
-    header: "Peso",
+    header: "Peso o Volumen",
     cell: ({ row }) => {
       const weight = row.getValue("weight") as string
-
+      if (weight == null) return "-"
       return <>{weight} g/ml</>
+    },
+  },
+  {
+    accessorKey: "unit",
+    header: "Unidad",
+    cell: ({ row }) => {
+      const unit = row.getValue("unit") as string
+      if (unit == null) return "-"
+      return <>{unit} u</>
     },
   },
   {
@@ -66,6 +76,7 @@ export const columns: ColumnDef<Product>[] = [
 
       const [name, setName] = useState(product.name)
       const [weight, setWeight] = useState<string>(String(product.weight))
+      const [unit, setUnit] = useState<string>(String(product.unit))
       const [cost, setCost] = useState<string>(String(product.cost))
       const [open, setOpen] = useState(false)
       const [, setValue] = useStorage<Product[]>("localStorage", "products", [])
@@ -80,17 +91,7 @@ export const columns: ColumnDef<Product>[] = [
         const cost = formData.get("cost") as string
 
         if (!name || !weight || !cost || !Number(weight) || !Number(cost)) {
-          console.log("invalid form")
-          return
-        }
-
-        if (
-          name === product.name &&
-          weight === String(product.weight) &&
-          cost === String(product.cost)
-        ) {
-          console.log("no changes")
-          setOpen(false)
+          alert("Formulario inválido")
           return
         }
 
@@ -144,45 +145,61 @@ export const columns: ColumnDef<Product>[] = [
 
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Agregar Producto</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click save when you're done.
-              </DialogDescription>
+              <DialogTitle>Editar Producto</DialogTitle>
+              <DialogDescription>Hace clic en guardar cuando termines.</DialogDescription>
             </DialogHeader>
             <form onSubmit={saveProduct}>
-              <div className="grid gap-4 py-4">
+              <div className="grid gap-3 pt-4 pb-8">
                 <div>
-                  <Label htmlFor="name" className="text-right">
-                    Nombre
+                  <Label htmlFor="name">
+                    Nombre <span className="text-red-600">*</span>
                   </Label>
                   <Input
                     id="name"
                     name="name"
                     placeholder="Dulce de Leche"
                     value={name}
-                    onChange={(ev) => setName(ev.target.value)}
+                    onChange={(event) => setName(event.target.value)}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="weight" className="text-right">
-                    Peso (g) o Volumen (ml)
+                <div className="grid grid-cols-2 gap-2">
+                  <Label htmlFor="weight">
+                    Peso (g) / Volumen (ml){" "}
+                    <span className="text-muted-foreground">*</span>
                   </Label>
+                  <Label htmlFor="unit">
+                    Unidad <span className="text-muted-foreground">*</span>
+                  </Label>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
                   <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
                     <Input
                       id="weight"
                       name="weight"
                       placeholder="1000"
-                      value={weight}
-                      onChange={(ev) => setWeight(ev.target.value)}
                       type="number"
-                      className="text-black invalid:ring-destructive"
+                      className="text-black"
+                      value={weight}
+                      onChange={(event) => setWeight(event.target.value)}
+                    />
+                    g/ml
+                  </span>
+                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                    <Input
+                      id="unit"
+                      name="unit"
+                      placeholder="1"
+                      type="number"
+                      className="text-black"
+                      value={unit}
+                      onChange={(event) => setUnit(event.target.value)}
                     />
                     g/ml
                   </span>
                 </div>
                 <div>
-                  <Label htmlFor="cost" className="text-right">
-                    Valor
+                  <Label htmlFor="cost">
+                    Valor <span className="text-red-600">*</span>
                   </Label>
                   <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
                     $
@@ -190,10 +207,10 @@ export const columns: ColumnDef<Product>[] = [
                       id="cost"
                       name="cost"
                       placeholder="1000"
-                      value={cost}
-                      onChange={(ev) => setCost(ev.target.value)}
                       type="number"
                       className="text-black"
+                      value={cost}
+                      onChange={(event) => setCost(event.target.value)}
                     />
                   </span>
                 </div>

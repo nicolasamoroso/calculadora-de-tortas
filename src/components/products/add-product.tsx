@@ -28,17 +28,31 @@ const AddProduct = () => {
 
     const name = formData.get("name") as string
     const weight = formData.get("weight") as string
+    const unit = formData.get("unit") as string
     const cost = formData.get("cost") as string
 
-    if (!name || !weight || !cost || !Number(weight) || !Number(cost)) {
+    if (
+      !name ||
+      !cost ||
+      (!weight && !unit) ||
+      (weight && !Number(weight)) ||
+      (unit && !Number(unit)) ||
+      !Number(cost)
+    ) {
       console.log("invalid form")
+      return
+    }
+
+    if (weight && unit) {
+      alert("No se pueden ingresar ambos campos de peso y unidad")
       return
     }
 
     const newProduct = {
       id: String(Date.now()),
       name,
-      weight: Number(weight),
+      weight: weight ? Number(weight) : null,
+      unit: unit ? Number(unit) : null,
       cost: Number(cost),
     }
 
@@ -63,17 +77,22 @@ const AddProduct = () => {
           <DialogDescription>Hace clic en guardar cuando termines.</DialogDescription>
         </DialogHeader>
         <form onSubmit={saveProduct}>
-          <div className="grid gap-2 pt-4 pb-8">
+          <div className="grid gap-3 pt-4 pb-8">
             <div>
-              <Label htmlFor="name" className="text-right">
-                Nombre
+              <Label htmlFor="name">
+                Nombre <span className="text-red-600">*</span>
               </Label>
-              <Input id="name" name="name" placeholder="Dulce de Leche" />
+              <Input id="name" name="name" placeholder="Dulce de Leche" required />
             </div>
-            <div>
-              <Label htmlFor="weight" className="text-right">
-                Peso (g) o Volumen (ml)
+            <div className="grid grid-cols-2 gap-2">
+              <Label htmlFor="weight">
+                Peso (g) / Volumen (ml) <span className="text-muted-foreground">*</span>
               </Label>
+              <Label htmlFor="unit">
+                Unidad <span className="text-muted-foreground">*</span>
+              </Label>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
               <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
                 <Input
                   id="weight"
@@ -84,10 +103,20 @@ const AddProduct = () => {
                 />
                 g/ml
               </span>
+              <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                <Input
+                  id="unit"
+                  name="unit"
+                  placeholder="1"
+                  type="number"
+                  className="text-black"
+                />
+                g/ml
+              </span>
             </div>
             <div>
-              <Label htmlFor="cost" className="text-right">
-                Valor
+              <Label htmlFor="cost">
+                Valor <span className="text-red-600">*</span>
               </Label>
               <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
                 $
@@ -97,6 +126,7 @@ const AddProduct = () => {
                   placeholder="1000"
                   type="number"
                   className="text-black"
+                  required
                 />
               </span>
             </div>
