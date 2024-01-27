@@ -109,14 +109,18 @@ const AddCake = () => {
         open={open}
       >
         <DialogTrigger asChild>
-          <Button variant="default" className="w-[150px]">
-            Agregar Torta
+          <Button variant="default" className="w-[80px]">
+            Crear
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Agregar Torta</DialogTitle>
-            <DialogDescription>Hace clic en guardar cuando termines.</DialogDescription>
+            <DialogTitle>Crear Torta</DialogTitle>
+            <DialogDescription className="text-xs">
+              Ingrese todos los campos obligatorios (
+              <span className="text-red-500">*</span>) y al menos agregue una materia
+              prima
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={saveCake}>
             <div className="grid gap-2 pt-4 pb-8">
@@ -152,7 +156,10 @@ const AddCake = () => {
                   cm
                 </span>
               </div>
-              <div className="py-2 flex flex-col gap-2">
+              <div className="py-2 flex flex-col gap-3">
+                <h4 className="font-semibold leading-none tracking-tight space-y-1.5 text-center sm:text-left">
+                  Materias primas
+                </h4>
                 <AddProductToCake />
                 {data && data.length > 0 ? (
                   <CakeProductTable columns={cakeColumns} data={data} />
@@ -160,7 +167,7 @@ const AddCake = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">Save changes</Button>
+              <Button type="submit">Crear torta</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -168,9 +175,9 @@ const AddCake = () => {
       <AlertDialog open={openAlert} onOpenChange={setOpenAlert}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Debes ingresar un producto</AlertDialogTitle>
+            <AlertDialogTitle>Faltaron datos completar</AlertDialogTitle>
             <AlertDialogDescription>
-              Para poder crear una torta debes ingresar al menos un producto en la torta
+              Para poder crear una torta debes ingresar al menos una materia prima.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

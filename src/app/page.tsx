@@ -12,13 +12,16 @@ export default function Home() {
   return (
     <main className="max-w-[1080px] mx-auto grid gap-4 py-4">
       <section className="grid gap-3">
-        <h1 className="text-4xl font-bold text-center">Productos</h1>
+        <h1 className="text-4xl font-bold text-center">Materia prima</h1>
         {data ? <ProductTable columns={columns} data={data} /> : <span>Loading...</span>}
       </section>
-      <section className="grid gap-3">
-        <AddCake />
-        <Cakes />
-      </section>
+      {data && data.length > 0 && (
+        <section className="grid gap-3">
+          <h1 className="text-4xl font-bold text-center">Tortas</h1>
+          <AddCake />
+          <Cakes />
+        </section>
+      )}
     </main>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 
 import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
@@ -15,11 +15,14 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { inputValidation } from "@/utils/input-validations"
 import { Product } from "./columns"
 
 const AddProduct = () => {
   const [open, setOpen] = useState(false)
   const [, setValue] = useStorage<Product[]>("localStorage", "products", [])
+  const [isWeight, setIsWeight] = useState(false)
+  const [isUnit, setIsUnit] = useState(false)
 
   const saveProduct = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -39,7 +42,7 @@ const AddProduct = () => {
       (unit && !Number(unit)) ||
       !Number(cost)
     ) {
-      console.log("invalid form")
+      alert("Formulario invalido")
       return
     }
 
@@ -61,30 +64,50 @@ const AddProduct = () => {
       return [...prev, newProduct]
     })
 
+    setIsWeight(false)
+    setIsUnit(false)
     setOpen(false)
+  }
+
+  const changeWeight = (e: ChangeEvent<HTMLInputElement>) => {
+    inputValidation(e)
+    if (e.target.value?.length > 0) {
+      setIsWeight(true)
+      setIsUnit(false)
+    } else {
+      setIsWeight(false)
+      setIsUnit(false)
+    }
+  }
+
+  const changeUnit = (e: ChangeEvent<HTMLInputElement>) => {
+    inputValidation(e)
+    if (e.target.value?.length > 0) {
+      setIsUnit(true)
+      setIsWeight(false)
+    } else {
+      setIsUnit(false)
+      setIsWeight(false)
+    }
   }
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button variant="default" className="w-[150px]">
-          Agregar Producto
+        <Button variant="default" className="w-[100px]">
+          Agregar
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Agregar Producto</DialogTitle>
-          <DialogDescription>
-            Hace clic en guardar cuando termines.
-            <span className="text-xs">
-              <br />(<span className="text-red-500">*</span>) Obligatorio
-              <br />
-              <span>(*) Obligatorio al menos uno de los dos</span>
-            </span>
+          <DialogTitle>Agregar materia prima</DialogTitle>
+          <DialogDescription className="text-xs">
+            Ingrese todos los campos obligatorios (<span className="text-red-500">*</span>
+            ) y al menos uno elegible (<span className="text-yellow-500">*</span>)
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={saveProduct}>
-          <div className="grid gap-3 pt-4 pb-8">
+          <div className="grid gap-3">
             <div>
               <Label htmlFor="name">
                 Nombre <span className="text-red-600">*</span>
@@ -92,11 +115,17 @@ const AddProduct = () => {
               <Input id="name" name="name" placeholder="Dulce de Leche" required />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Label htmlFor="weight">
-                Peso (g) / Volumen (ml) <span className="text-muted-foreground">*</span>
+              <Label
+                htmlFor="weight"
+                className={isUnit ? "text-muted-foreground font-normal" : "text-black"}
+              >
+                Peso (g) / Volumen (ml) <span className="text-yellow-500">*</span>
               </Label>
-              <Label htmlFor="unit">
-                Unidad <span className="text-muted-foreground">*</span>
+              <Label
+                htmlFor="unit"
+                className={isWeight ? "text-muted-foreground font-normal" : "text-black"}
+              >
+                Unidad <span className="text-yellow-500">*</span>
               </Label>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -104,9 +133,12 @@ const AddProduct = () => {
                 <Input
                   id="weight"
                   name="weight"
-                  placeholder="1000"
+                  placeholder={!isUnit ? "1000" : undefined}
                   type="number"
                   className="text-black"
+                  onChange={changeWeight}
+                  disabled={isUnit}
+                  min={0}
                 />
                 g/ml
               </span>
@@ -114,9 +146,12 @@ const AddProduct = () => {
                 <Input
                   id="unit"
                   name="unit"
-                  placeholder="1"
+                  placeholder={!isWeight ? "1" : undefined}
                   type="number"
                   className="text-black"
+                  onChange={changeUnit}
+                  disabled={isWeight}
+                  min={0}
                 />
                 u
               </span>
@@ -134,12 +169,16 @@ const AddProduct = () => {
                   type="number"
                   className="text-black"
                   required
+                  onChange={(e) => {
+                    inputValidation(e)
+                  }}
+                  min={0}
                 />
               </span>
             </div>
           </div>
-          <DialogFooter>
-            <Button type="submit">Save changes</Button>
+          <DialogFooter className="pt-4">
+            <Button type="submit">Agregar</Button>
           </DialogFooter>
         </form>
       </DialogContent>

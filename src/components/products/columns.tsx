@@ -1,6 +1,6 @@
 "use client"
 
-import { FormEvent, useState } from "react"
+import { ChangeEvent, FormEvent, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
@@ -23,6 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { inputValidation } from "@/utils/input-validations"
 
 export type Product = {
   id: string
@@ -80,17 +81,19 @@ export const columns: ColumnDef<Product>[] = [
       const [cost, setCost] = useState<string>(String(product.cost))
       const [open, setOpen] = useState(false)
       const [, setValue] = useStorage<Product[]>("localStorage", "products", [])
+      const [isWeight, setIsWeight] = useState(product.weight != null)
+      const [isUnit, setIsUnit] = useState(product.unit != null)
 
       const saveProduct = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
         const formData = new FormData(event.currentTarget)
 
-        const name = formData.get("name") as string
-        const weight = formData.get("weight") as string
-        const cost = formData.get("cost") as string
+        const name = String(formData.get("name"))
+        const weight = String(formData.get("weight"))
+        const cost = String(formData.get("cost"))
 
-        if (!name || !weight || !cost || !Number(weight) || !Number(cost)) {
+        if (!name || !cost || (!weight && !unit)) {
           alert("Formulario inválido")
           return
         }
@@ -107,7 +110,8 @@ export const columns: ColumnDef<Product>[] = [
               return {
                 ...product,
                 name,
-                weight: Number(weight),
+                weight: weight ? Number(weight) : null,
+                unit: unit ? Number(unit) : null,
                 cost: Number(cost),
               }
             }
@@ -124,6 +128,26 @@ export const columns: ColumnDef<Product>[] = [
 
           return prev.filter((product) => product.id !== row.original.id)
         })
+      }
+
+      const changeWeight = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value?.length > 0) {
+          setIsWeight(true)
+          setIsUnit(false)
+        } else {
+          setIsWeight(false)
+          setIsUnit(false)
+        }
+      }
+
+      const changeUnit = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.value?.length > 0) {
+          setIsUnit(true)
+          setIsWeight(false)
+        } else {
+          setIsUnit(false)
+          setIsWeight(false)
+        }
       }
 
       return (
@@ -145,14 +169,11 @@ export const columns: ColumnDef<Product>[] = [
 
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Editar Producto</DialogTitle>
-              <DialogDescription>
-                Hace clic en guardar cuando termines.
-                <span className="text-xs">
-                  <br />(<span className="text-red-500">*</span>) Obligatorio
-                  <br />
-                  <span>(*) Obligatorio al menos uno de los dos</span>
-                </span>
+              <DialogTitle>Editar materia prima</DialogTitle>
+              <DialogDescription className="text-xs">
+                Edite y no deje ningun campo obligatorio (
+                <span className="text-red-500">*</span>) ni uno elegible (
+                <span className="text-yellow-500">*</span>) vacio.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={saveProduct}>
@@ -170,12 +191,21 @@ export const columns: ColumnDef<Product>[] = [
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <Label htmlFor="weight">
-                    Peso (g) / Volumen (ml){" "}
-                    <span className="text-muted-foreground">*</span>
+                  <Label
+                    htmlFor="weight"
+                    className={
+                      isUnit ? "text-muted-foreground font-normal" : "text-black"
+                    }
+                  >
+                    Peso (g) / Volumen (ml) <span className="text-yellow-500">*</span>
                   </Label>
-                  <Label htmlFor="unit">
-                    Unidad <span className="text-muted-foreground">*</span>
+                  <Label
+                    htmlFor="unit"
+                    className={
+                      isWeight ? "text-muted-foreground font-normal" : "text-black"
+                    }
+                  >
+                    Unidad <span className="text-yellow-500">*</span>
                   </Label>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -183,11 +213,18 @@ export const columns: ColumnDef<Product>[] = [
                     <Input
                       id="weight"
                       name="weight"
-                      placeholder="1000"
+                      placeholder={!isUnit ? "1000" : undefined}
                       type="number"
                       className="text-black"
                       value={weight}
-                      onChange={(event) => setWeight(event.target.value)}
+                      disabled={isUnit}
+                      onChange={(e) => {
+                        if (Number(e.target.value) < 0) setWeight("0")
+                        else setWeight(e.target.value)
+
+                        changeWeight(e)
+                      }}
+                      min={0}
                     />
                     g/ml
                   </span>
@@ -195,13 +232,20 @@ export const columns: ColumnDef<Product>[] = [
                     <Input
                       id="unit"
                       name="unit"
-                      placeholder="1"
+                      placeholder={!isWeight ? "1" : undefined}
                       type="number"
                       className="text-black"
                       value={unit}
-                      onChange={(event) => setUnit(event.target.value)}
+                      disabled={isWeight}
+                      onChange={(e) => {
+                        if (Number(e.target.value) < 0) setUnit("0")
+                        else setUnit(e.target.value)
+
+                        changeUnit(e)
+                      }}
+                      min={0}
                     />
-                    g/ml
+                    u
                   </span>
                 </div>
                 <div>
@@ -217,14 +261,18 @@ export const columns: ColumnDef<Product>[] = [
                       type="number"
                       className="text-black"
                       value={cost}
-                      onChange={(event) => setCost(event.target.value)}
+                      onChange={(event) => {
+                        inputValidation(event)
+                        setCost(event.target.value)
+                      }}
+                      min={0}
                     />
                   </span>
                 </div>
               </div>
               <DialogFooter className="flex gap-2">
                 <Button variant="destructive" type="button" onClick={deleteProduct}>
-                  Borrar Producto
+                  Borrar materia prima
                 </Button>
                 <Button type="submit">Guardar cambios</Button>
               </DialogFooter>

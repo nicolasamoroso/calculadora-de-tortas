@@ -33,14 +33,14 @@ const ProductSelect = ({
           {value
             ? data?.find((product) => product.name.toLowerCase() === value.toLowerCase())
                 ?.name
-            : "Seleccionar un producto..."}
+            : "Seleccionar una materia prima..."}
           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Buscar productos..." className="h-9" />
-          <CommandEmpty>No se encontró ningún producto</CommandEmpty>
+          <CommandInput placeholder="Buscar materia prima..." className="h-9" />
+          <CommandEmpty>No se encontró ninguna materia prima</CommandEmpty>
           <CommandGroup>
             {data?.map((product) => (
               <CommandItem

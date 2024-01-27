@@ -32,7 +32,7 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
   },
   {
     accessorKey: "weight",
-    header: "Peso o Voluemn",
+    header: "Peso o Volumen",
     cell: ({ row }) => {
       const weight = row.getValue("weight") as string
       if (!weight) return "-"
@@ -70,11 +70,18 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
           return
         }
 
-        const cost = product.weight
-          ? (Number(weight) * product.cost) / product.weight
-          : product.unit
-            ? (Number(unit) * product.cost) / product.unit
-            : 0
+        const calculateCost = () => {
+          if (!product) return 0
+
+          if (product.weight && weight)
+            return (Number(weight) * product.cost) / product.weight
+
+          if (product.unit && unit) return (Number(unit) * product.cost) / product.unit
+
+          return 0
+        }
+
+        const cost = calculateCost()
 
         const newProduct: CakeProduct = {
           id: product.id,
@@ -109,73 +116,60 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Editar Producto</DialogTitle>
-              <DialogDescription>
-                Hace clic en guardar cuando termines.
-                <span className="text-xs">
-                  <br />(<span className="text-red-500">*</span>) Obligatorio
-                  <br />
-                  <span>(*) Obligatorio al menos uno de los dos</span>
-                </span>
+              <DialogTitle>Editar materia prima</DialogTitle>
+              <DialogDescription className="text-xs">
+                Ingrese todos los campos obligatorios (
+                <span className="text-red-500">*</span>) vacío.
               </DialogDescription>
             </DialogHeader>
             <form>
               <div className="grid gap-4 py-4">
                 <div className="flex flex-col gap-1">
                   <Label htmlFor="select">
-                    Selecciona un producto <span className="text-red-500">*</span>
+                    Materia prima <span className="text-red-500">*</span>
                   </Label>
                   <ProductSelect setSelect={setName} initialValue={name} />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Label
-                    htmlFor="weight"
-                    className={
-                      !product?.weight
-                        ? "text-muted-foreground font-normal"
-                        : "text-black"
-                    }
-                  >
-                    Peso (g) / Volumen (ml)
-                    <span className="text-muted-foreground">*</span>
-                  </Label>
-                  <Label
-                    htmlFor="unit"
-                    className={
-                      !product?.unit ? "text-muted-foreground font-normal" : "text-black"
-                    }
-                  >
-                    Unidad <span className="text-muted-foreground">*</span>
-                  </Label>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
-                    <Input
-                      id="weight"
-                      name="weight"
-                      placeholder="1000"
-                      type="number"
-                      value={weight}
-                      onChange={(ev) => setWeight(ev.target.value)}
-                      className="text-black"
-                      disabled={!product?.weight}
-                    />
-                    g/ml
-                  </span>
-                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
-                    <Input
-                      id="unit"
-                      name="unit"
-                      placeholder="1"
-                      type="number"
-                      value={unit}
-                      onChange={(ev) => setUnit(ev.target.value)}
-                      className="text-black invalid:ring-destructive"
-                      disabled={!product?.unit}
-                    />
-                    u
-                  </span>
-                </div>
+                {product?.weight && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="weight" className="text-black">
+                      Peso (g) / Volumen (ml) <span className="text-red-500">*</span>
+                    </Label>
+                    <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                      <Input
+                        id="weight"
+                        name="weight"
+                        placeholder="1000"
+                        type="number"
+                        value={weight}
+                        onChange={(ev) => setWeight(ev.target.value)}
+                        className="text-black"
+                        disabled={!product?.weight}
+                      />
+                      g/ml
+                    </span>
+                  </div>
+                )}
+                {product?.unit && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="unit" className="text-black">
+                      Unidad <span className="text-red-500">*</span>
+                    </Label>
+                    <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                      <Input
+                        id="unit"
+                        name="unit"
+                        placeholder="1"
+                        type="number"
+                        value={unit}
+                        onChange={(ev) => setUnit(ev.target.value)}
+                        className="text-black invalid:ring-destructive"
+                        disabled={!product?.unit}
+                      />
+                      u
+                    </span>
+                  </div>
+                )}
               </div>
               <DialogFooter>
                 <Button type="button" onClick={saveProduct}>
