@@ -57,7 +57,7 @@ export function CakeProductTable<TData, TValue>({
 
   return (
     <div className="grid gap-3">
-      <div className="rounded-t-md border bg-secondary">
+      <div className="rounded-t-md border bg-secondary overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
