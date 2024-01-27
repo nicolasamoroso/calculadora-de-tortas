@@ -223,7 +223,7 @@ export const columns: ColumnDef<Product>[] = [
                 </div>
               </div>
               <DialogFooter className="flex gap-2">
-                <Button variant="destructive" onClick={deleteProduct}>
+                <Button variant="destructive" type="button" onClick={deleteProduct}>
                   Borrar Producto
                 </Button>
                 <Button type="submit">Guardar cambios</Button>
