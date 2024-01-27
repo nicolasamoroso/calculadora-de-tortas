@@ -77,7 +77,7 @@ export function ProductTable<TData, TValue>({
           </p>
         </PopoverContent>
       </Popover>
-      <div className="rounded-t-md border bg-secondary">
+      <div className="rounded-t-md border bg-secondary overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

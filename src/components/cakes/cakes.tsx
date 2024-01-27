@@ -8,7 +8,7 @@ const Cakes = () => {
     <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
       {data?.map((cake) => {
         return (
-          <div key={cake.id} className="flex flex-col items-center w-[150px] text-center">
+          <div key={cake.id} className="flex flex-col items-center text-center">
             {cake.img ? (
               <img src={cake.img} alt={cake.name} className="w-[100px] h-[100px]" />
             ) : (
