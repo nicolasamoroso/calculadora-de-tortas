@@ -15,6 +15,7 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Table,
   TableBody,
@@ -23,12 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import AddProduct from "./add-product"
 
 interface ProductTableProps<TData, TValue> {
@@ -66,24 +61,22 @@ export function ProductTable<TData, TValue>({
   return (
     <div className="grid gap-3">
       <AddProduct />
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger className="text-blue-600 underline">
-            ¿Cómo funciona?
-          </TooltipTrigger>
-          <TooltipContent className="bg-card border border-border max-w-[350px]">
-            <p className="text-sm text-muted-foreground">
-              Se tiene que agregar la materia prima que se va a utilizar.
-              <br />
-              Solo se necesita ingresar el nombre, unidad de medida y el valor por el cual
-              se compró.
-              <br />
-              Ejemplo: Nombre: Leche, Peso o Volumen: 1000, Unidad: Vacio, Valor: 42
-              <br />Y quedaría: Leche 1000 g/ml $42
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Popover>
+        <PopoverTrigger className="text-blue-600 underline">
+          ¿Cómo funciona?
+        </PopoverTrigger>
+        <PopoverContent>
+          <p className="text-sm text-muted-foreground">
+            Se tiene que agregar la materia prima que se va a utilizar.
+            <br />
+            Solo se necesita ingresar el nombre, unidad de medida y el valor por el cual
+            se compró.
+            <br />
+            Ejemplo: Nombre: Leche, Peso o Volumen: 1000, Unidad: Vacio, Valor: 42
+            <br />Y quedaría: Leche 1000 g/ml $42
+          </p>
+        </PopoverContent>
+      </Popover>
       <div className="rounded-t-md border bg-secondary">
         <Table>
           <TableHeader>
