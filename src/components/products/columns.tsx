@@ -128,6 +128,7 @@ export const columns: ColumnDef<Product>[] = [
 
           return prev.filter((product) => product.id !== row.original.id)
         })
+        setOpen(false)
       }
 
       const changeWeight = (e: ChangeEvent<HTMLInputElement>) => {

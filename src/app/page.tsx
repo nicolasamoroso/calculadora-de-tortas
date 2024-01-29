@@ -22,6 +22,14 @@ export default function Home() {
           <Cakes />
         </section>
       )}
+      <button
+        onClick={() => {
+          localStorage.clear()
+          location.reload()
+        }}
+      >
+        Borrar LocalStorage
+      </button>
     </main>
   )
 }
