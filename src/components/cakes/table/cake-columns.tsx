@@ -4,6 +4,8 @@ import { useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
+import { CakeProduct } from "@/types/cake-types"
+import { SpongeCakeProduct } from "@/types/sponge-cake-types"
 import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,10 +19,9 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CakeProduct } from "@/components/cakes/add-cake"
-import ProductSelect from "@/components/cakes/product-select"
+import { Select } from "@/components/select"
 
-export const cakeColumns: ColumnDef<CakeProduct>[] = [
+export const cakeColumns: ColumnDef<CakeProduct | SpongeCakeProduct>[] = [
   {
     accessorKey: "name",
     header: "Nombre",
@@ -50,14 +51,16 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const product = row.original
 
-      const [name, setName] = useState(product.name)
+      const queryKey = (table.options.meta as any).queryKey
+
+      const [name, setName] = useState(product)
       const [weight, setWeight] = useState<string>(String(product.weight))
       const [unit, setUnit] = useState<string>(String(product.unit))
       const [open, setOpen] = useState(false)
-      const [, setValue] = useStorage<CakeProduct[]>("localStorage", "cake-products", [])
+      const [, setValue] = useStorage<CakeProduct[]>("localStorage", queryKey, [])
 
       const saveProduct = () => {
         if (!name || (!weight && !unit)) {
@@ -85,7 +88,7 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
 
         const newProduct: CakeProduct = {
           id: product.id,
-          name: name,
+          name: name.name,
           weight: weight ? Number(weight) : null,
           unit: unit ? Number(unit) : null,
           cost: cost,
@@ -128,7 +131,12 @@ export const cakeColumns: ColumnDef<CakeProduct>[] = [
                   <Label htmlFor="select">
                     Materia prima <span className="text-red-500">*</span>
                   </Label>
-                  <ProductSelect setSelect={setName} initialValue={name} />
+                  <Select
+                    setSelect={setName}
+                    initialValue={name.name}
+                    queryKey="products"
+                    text="materias prima"
+                  />
                 </div>
                 {product?.weight && (
                   <div className="grid gap-2">

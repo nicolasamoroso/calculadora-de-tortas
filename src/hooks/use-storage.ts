@@ -39,7 +39,12 @@ export const useStorage = <Schema>(
     [isDisabled, key, query, type]
   )
 
-  return [query.data, setValue, query] as const
+  const remove = React.useCallback(() => {
+    window[type].removeItem(key)
+    query.refetch()
+  }, [key, query, type])
+
+  return [query.data, setValue, remove, query] as const
 }
 
 type ValueOrUpdater<Value> = ((prev: Value | undefined) => Value) | Value

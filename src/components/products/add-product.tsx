@@ -2,6 +2,7 @@
 
 import { ChangeEvent, useState } from "react"
 
+import { Product } from "@/types/product-type"
 import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
 import {
@@ -15,8 +16,8 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { InputWithText } from "@/components/input-with-text"
 import { inputValidation } from "@/utils/input-validations"
-import { Product } from "./columns"
 
 const AddProduct = () => {
   const [open, setOpen] = useState(false)
@@ -115,66 +116,67 @@ const AddProduct = () => {
               <Input id="name" name="name" placeholder="Dulce de Leche" required />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Label
-                htmlFor="weight"
-                className={isUnit ? "text-muted-foreground font-normal" : "text-black"}
-              >
-                Peso (g) / Volumen (ml) <span className="text-yellow-500">*</span>
-              </Label>
-              <Label
-                htmlFor="unit"
-                className={isWeight ? "text-muted-foreground font-normal" : "text-black"}
-              >
-                Unidad <span className="text-yellow-500">*</span>
-              </Label>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
-                <Input
-                  id="weight"
-                  name="weight"
-                  placeholder={!isUnit ? "1000" : undefined}
-                  type="number"
-                  className="text-black"
-                  onChange={changeWeight}
-                  disabled={isUnit}
-                  min={0}
-                />
-                g/ml
-              </span>
-              <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
-                <Input
-                  id="unit"
-                  name="unit"
-                  placeholder={!isWeight ? "1" : undefined}
-                  type="number"
-                  className="text-black"
-                  onChange={changeUnit}
-                  disabled={isWeight}
-                  min={0}
-                />
-                u
-              </span>
+              <div>
+                <Label
+                  htmlFor="weight"
+                  className={isUnit ? "text-muted-foreground font-normal" : "text-black"}
+                >
+                  Peso (g) / Volumen (ml) <span className="text-yellow-500">*</span>
+                </Label>
+                <InputWithText textEnd="g/ml" style={{ right: "18px" }}>
+                  <Input
+                    id="weight"
+                    name="weight"
+                    placeholder={!isUnit ? "1000" : undefined}
+                    type="number"
+                    className="text-black pr-[3.5rem]"
+                    onChange={changeWeight}
+                    disabled={isUnit}
+                    min={0}
+                  />
+                </InputWithText>
+              </div>
+              <div>
+                <Label
+                  htmlFor="unit"
+                  className={
+                    isWeight ? "text-muted-foreground font-normal" : "text-black"
+                  }
+                >
+                  Unidad <span className="text-yellow-500">*</span>
+                </Label>
+                <InputWithText textEnd="u" style={{ right: "8px" }}>
+                  <Input
+                    id="unit"
+                    name="unit"
+                    placeholder={!isWeight ? "1" : undefined}
+                    type="number"
+                    className="text-black pr-[2rem]"
+                    onChange={changeUnit}
+                    disabled={isWeight}
+                    min={0}
+                  />
+                </InputWithText>
+              </div>
             </div>
             <div>
               <Label htmlFor="cost">
                 Valor <span className="text-red-600">*</span>
               </Label>
-              <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
-                $
+              <InputWithText textStart="$" style={{ left: "8px" }}>
                 <Input
                   id="cost"
                   name="cost"
                   placeholder="1000"
                   type="number"
-                  className="text-black"
+                  className="text-black pl-[2rem]"
                   required
                   onChange={(e) => {
                     inputValidation(e)
                   }}
                   min={0}
                 />
-              </span>
+              </InputWithText>
             </div>
           </div>
           <DialogFooter className="pt-4">

@@ -15,7 +15,6 @@ import {
 } from "@tanstack/react-table"
 
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
   Table,
   TableBody,
@@ -24,7 +23,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import AddProduct from "./add-product"
 
 interface ProductTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -60,23 +58,6 @@ export function ProductTable<TData, TValue>({
 
   return (
     <div className="grid gap-3">
-      <AddProduct />
-      <Popover>
-        <PopoverTrigger className="text-blue-600 underline">
-          ¿Cómo funciona?
-        </PopoverTrigger>
-        <PopoverContent>
-          <p className="text-sm text-muted-foreground">
-            Se tiene que agregar la materia prima que se va a utilizar.
-            <br />
-            Solo se necesita ingresar el nombre, unidad de medida y el valor por el cual
-            se compró.
-            <br />
-            Ejemplo: Nombre: Leche, Peso o Volumen: 1000, Unidad: Vacio, Valor: 42
-            <br />Y quedaría: Leche 1000 g/ml $42
-          </p>
-        </PopoverContent>
-      </Popover>
       <div className="rounded-t-md border bg-secondary overflow-x-auto">
         <Table>
           <TableHeader>
