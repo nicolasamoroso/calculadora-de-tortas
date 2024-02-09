@@ -1,5 +1,7 @@
-import { Dispatch, ElementRef, SetStateAction, useRef, useState } from "react"
+import { ElementRef, useRef, useState } from "react"
 
+import { CakeProduct } from "@/types/cake-types"
+import { Product } from "@/types/product-type"
 import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,19 +15,18 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CakeProduct } from "@/components/cakes/add-cake"
-import ProductSelect from "@/components/cakes/product-select"
-import { Product } from "@/components/products/columns"
+import { InputWithText } from "@/components/input-with-text"
+import { Select } from "@/components/select"
 
-const AddProductToCake = () => {
-  const [select, setSelect] = useState("")
+const AddProductToCake = ({ queryKey }: { queryKey: string }) => {
+  const [select, setSelect] = useState<Product | null>(null)
   const [open, setOpen] = useState(false)
   const weightRef = useRef<ElementRef<"input">>(null)
   const unitRef = useRef<ElementRef<"input">>(null)
   const [data] = useStorage<Product[]>("localStorage", "products", [])
-  const [, setValue] = useStorage<CakeProduct[]>("localStorage", "cake-products", [])
+  const [, setValue] = useStorage<any[]>("localStorage", queryKey, [])
 
-  const name = select
+  const name = select?.name
   const product = data?.find((product) => product.name === name)
 
   const AddProduct = () => {
@@ -56,7 +57,7 @@ const AddProductToCake = () => {
     const cost = calculateCost()
 
     const newProduct: CakeProduct = {
-      id: Math.random().toString(36).slice(2, 9),
+      id: product.id,
       name: product.name,
       weight: weight ? Number(weight) : null,
       unit: unit ? Number(unit) : null,
@@ -68,7 +69,7 @@ const AddProductToCake = () => {
       return [...prev, newProduct]
     })
 
-    setSelect("")
+    setSelect(null)
     setOpen(false)
   }
 
@@ -79,7 +80,7 @@ const AddProductToCake = () => {
           variant="default"
           className="w-[100px]"
           onClick={() => {
-            setSelect("")
+            setSelect(null)
           }}
         >
           Agregar
@@ -98,25 +99,24 @@ const AddProductToCake = () => {
           <Label htmlFor="select">
             Materia prima <span className="text-red-500">*</span>
           </Label>
-          <ProductSelect setSelect={setSelect} />
+          <Select setSelect={setSelect} queryKey="products" text="materia prima" />
         </div>
         {product?.weight && (
           <div className="grid gap-2">
             <Label htmlFor="weight" className="text-black">
               Peso (g) / Volumen (ml) <span className="text-red-500">*</span>
             </Label>
-            <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+            <InputWithText textEnd="g/ml" style={{ right: "18px" }}>
               <Input
                 id="weight"
                 name="weight"
                 placeholder={product?.weight ? "1000" : undefined}
                 type="number"
                 ref={weightRef}
-                className="text-black"
+                className="text-black pr-[3rem]"
                 disabled={!product?.weight}
               />
-              g/ml
-            </span>
+            </InputWithText>
           </div>
         )}
         {product?.unit && (
@@ -124,18 +124,17 @@ const AddProductToCake = () => {
             <Label htmlFor="unit" className="text-black">
               Unidad <span className="text-red-500">*</span>
             </Label>
-            <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+            <InputWithText textEnd="u" style={{ right: "8px" }}>
               <Input
                 id="unit"
                 name="unit"
                 placeholder={product?.unit ? "1" : undefined}
                 type="number"
                 ref={unitRef}
-                className="text-black"
+                className="text-black pr-[2rem]"
                 disabled={!product?.unit}
               />
-              u
-            </span>
+            </InputWithText>
           </div>
         )}
         <DialogFooter>

@@ -4,6 +4,9 @@ import { ChangeEvent, FormEvent, useState } from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil } from "lucide-react"
 
+import { Cake } from "@/types/cake-types"
+import { Product } from "@/types/product-type"
+import { SpongeCake } from "@/types/sponge-cake-types"
 import { useStorage } from "@/hooks/use-storage"
 import { Button } from "@/components/ui/button"
 import {
@@ -23,15 +26,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { InputWithText } from "@/components/input-with-text"
 import { inputValidation } from "@/utils/input-validations"
-
-export type Product = {
-  id: string
-  name: string
-  weight: number | null
-  unit: number | null
-  cost: number
-}
 
 export const columns: ColumnDef<Product>[] = [
   {
@@ -80,7 +76,13 @@ export const columns: ColumnDef<Product>[] = [
       const [unit, setUnit] = useState<string>(String(product.unit))
       const [cost, setCost] = useState<string>(String(product.cost))
       const [open, setOpen] = useState(false)
-      const [, setValue] = useStorage<Product[]>("localStorage", "products", [])
+      const [, setProducts] = useStorage<Product[]>("localStorage", "products", [])
+      const [, setSpongeCakes] = useStorage<SpongeCake[]>(
+        "localStorage",
+        "sponge-cakes",
+        []
+      )
+      const [, setCakes] = useStorage<Cake[]>("localStorage", "cakes", [])
       const [isWeight, setIsWeight] = useState(product.weight != null)
       const [isUnit, setIsUnit] = useState(product.unit != null)
 
@@ -89,9 +91,9 @@ export const columns: ColumnDef<Product>[] = [
 
         const formData = new FormData(event.currentTarget)
 
-        const name = String(formData.get("name"))
-        const weight = String(formData.get("weight"))
-        const cost = String(formData.get("cost"))
+        const name = formData.get("name") as string
+        const weight = formData.get("weight") as string
+        const cost = formData.get("cost") as string
 
         if (!name || !cost || (!weight && !unit)) {
           alert("Formulario inválido")
@@ -102,7 +104,7 @@ export const columns: ColumnDef<Product>[] = [
         setWeight(weight)
         setCost(cost)
 
-        setValue((prev) => {
+        setProducts((prev) => {
           if (!prev) return []
 
           return prev.map((product) => {
@@ -119,11 +121,42 @@ export const columns: ColumnDef<Product>[] = [
           })
         })
 
+        setSpongeCakes((prev) => {
+          if (!prev) return []
+          return prev.map((spongeCake) => {
+            if (spongeCake.products.find((p) => p.id === row.original.id)) {
+              const updatedProducts = spongeCake.products.map((p) => {
+                if (p.id === row.original.id) {
+                  return {
+                    ...p,
+                    name,
+                    weight: weight ? Number(weight) : null,
+                    unit: unit ? Number(unit) : null,
+                    cost: Number(cost),
+                  }
+                }
+                return p
+              })
+
+              const updatedSpongeCake = {
+                ...spongeCake,
+                products: updatedProducts,
+                cost:
+                  updatedProducts.reduce((acc, product) => acc + product.cost, 0) *
+                  (1 + Number(spongeCake.additionalCost) / 100),
+              }
+
+              return updatedSpongeCake
+            }
+            return spongeCake
+          })
+        })
+
         setOpen(false)
       }
 
       const deleteProduct = () => {
-        setValue((prev) => {
+        setProducts((prev) => {
           if (!prev) return []
 
           return prev.filter((product) => product.id !== row.original.id)
@@ -210,13 +243,13 @@ export const columns: ColumnDef<Product>[] = [
                   </Label>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                  <InputWithText textEnd="g/ml" style={{ right: "18px" }}>
                     <Input
                       id="weight"
                       name="weight"
                       placeholder={!isUnit ? "1000" : undefined}
                       type="number"
-                      className="text-black"
+                      className="text-black pr-[3.5rem]"
                       value={weight}
                       disabled={isUnit}
                       onChange={(e) => {
@@ -227,15 +260,14 @@ export const columns: ColumnDef<Product>[] = [
                       }}
                       min={0}
                     />
-                    g/ml
-                  </span>
-                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
+                  </InputWithText>
+                  <InputWithText textEnd="u" style={{ right: "8px" }}>
                     <Input
                       id="unit"
                       name="unit"
                       placeholder={!isWeight ? "1" : undefined}
                       type="number"
-                      className="text-black"
+                      className="text-black pr-[2rem]"
                       value={unit}
                       disabled={isWeight}
                       onChange={(e) => {
@@ -246,21 +278,19 @@ export const columns: ColumnDef<Product>[] = [
                       }}
                       min={0}
                     />
-                    u
-                  </span>
+                  </InputWithText>
                 </div>
                 <div>
                   <Label htmlFor="cost">
                     Valor <span className="text-red-600">*</span>
                   </Label>
-                  <span className="flex items-center gap-x-1 text-sm text-muted-foreground">
-                    $
+                  <InputWithText textStart="$" style={{ left: "8px" }}>
                     <Input
                       id="cost"
                       name="cost"
                       placeholder="1000"
                       type="number"
-                      className="text-black"
+                      className="text-black pl-[2rem]"
                       value={cost}
                       onChange={(event) => {
                         inputValidation(event)
@@ -268,7 +298,7 @@ export const columns: ColumnDef<Product>[] = [
                       }}
                       min={0}
                     />
-                  </span>
+                  </InputWithText>
                 </div>
               </div>
               <DialogFooter className="flex gap-2">

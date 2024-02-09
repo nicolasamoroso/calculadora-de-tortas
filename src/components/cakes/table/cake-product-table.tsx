@@ -27,11 +27,13 @@ import {
 interface CakeProductTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  queryKey: string
 }
 
 export function CakeProductTable<TData, TValue>({
   columns,
   data,
+  queryKey,
 }: CakeProductTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -50,6 +52,9 @@ export function CakeProductTable<TData, TValue>({
       sorting,
       columnFilters,
       columnVisibility,
+    },
+    meta: {
+      queryKey,
     },
   })
 

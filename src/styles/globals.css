@@ -65,3 +65,25 @@
     --ring: 240 4.9% 83.9%;
   }
 }
+
+/* .asddd {
+  box-shadow:
+    -1px 0px 0px 0px white,
+    0px 0px 0px 1px red;
+}
+
+.asd {
+  box-shadow: 0px 0px 0px 1px red;
+} */
+
+.input-module {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
